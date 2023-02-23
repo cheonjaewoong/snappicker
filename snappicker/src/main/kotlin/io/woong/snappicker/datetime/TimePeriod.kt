@@ -1,4 +1,4 @@
-package io.woong.snappicker.compose.datetime
+package io.woong.snappicker.datetime
 
 /**
  * Available time period indicator for 12 hour time format, AM/PM.

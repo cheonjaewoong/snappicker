@@ -34,6 +34,7 @@ android {
 }
 
 dependencies {
+    api(project(":snappicker"))
     implementation("androidx.compose.runtime:runtime:1.3.3")
     implementation("androidx.compose.foundation:foundation:1.3.1")
     implementation("androidx.compose.ui:ui:1.3.3")

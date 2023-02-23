@@ -1,4 +1,4 @@
-package io.woong.snappicker.compose.datetime
+package io.woong.snappicker.datetime
 
 /**
  * Available time formats of time picker.

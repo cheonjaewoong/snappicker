@@ -23,8 +23,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import io.woong.snappicker.compose.ExperimentalSnapPickerApi
 import io.woong.snappicker.compose.VerticalSnapPicker
-import io.woong.snappicker.compose.datetime.TimeFormat
-import io.woong.snappicker.compose.datetime.TimePeriod
+import io.woong.snappicker.datetime.TimeFormat
+import io.woong.snappicker.datetime.TimePeriod
 import io.woong.snappicker.compose.datetime.VerticalDateSnapPicker
 import io.woong.snappicker.compose.datetime.VerticalTimeSnapPicker
 import io.woong.snappicker.compose.datetime.rememberDateSnapPickerState
