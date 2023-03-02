@@ -5,6 +5,7 @@ plugins {
     id("com.android.application") version "7.4.0" apply false
     id("org.jetbrains.kotlin.android") version "1.7.20" apply false
     id("com.vanniktech.maven.publish") version "0.24.0" apply false
+    id("androidx.navigation.safeargs.kotlin") version "2.5.3" apply false
 }
 
 allprojects {
