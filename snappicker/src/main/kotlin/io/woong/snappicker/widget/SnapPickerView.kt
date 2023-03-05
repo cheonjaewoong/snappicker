@@ -20,9 +20,30 @@ import kotlin.math.roundToInt
 /**
  * The scrollable picker that allows user to select one item from multiple items.
  */
-public class SnapPickerView<T> : FrameLayout {
-
+public class SnapPickerView : FrameLayout {
+    /**
+     * Internal recycler view to display values in a list.
+     */
     private val pickerRecycler: RecyclerView
+
+    /**
+     * The orientation of this picker. Either [ORIENTATION_HORIZONTAL] or [ORIENTATION_VERTICAL].
+     */
+    @RecyclerView.Orientation
+    public var orientation: Int
+        get() = (pickerRecycler.layoutManager as LinearLayoutManager).orientation
+        set(value) {
+            (pickerRecycler.layoutManager as LinearLayoutManager).orientation = value
+        }
+
+    /**
+     * The option determines whether this picker displays values cyclical.
+     */
+    public var isCyclic: Boolean = true
+
+    private var onScrollListener: OnScrollListener? = null
+    // TODO: make to work
+    private var onValueChangedListener: OnValueChangedListener<*>? = null
 
     public constructor(context: Context) : this(context, null)
 
@@ -65,63 +86,207 @@ public class SnapPickerView<T> : FrameLayout {
 
         pickerRecycler = RecyclerView(context)
         pickerRecycler.layoutManager = LinearLayoutManager(context, orientation, false)
-        val adapter = DefaultSnapPickerAdapter<T>(itemWidth, itemHeight)
-        adapter.orientation = orientation
-        pickerRecycler.adapter = adapter
+        setAdapter(DefaultAdapter(itemWidth, itemHeight))
         LinearSnapHelper().attachToRecyclerView(pickerRecycler)
+        pickerRecycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                onScrollListener?.onScrollStateChanged(this@SnapPickerView, newState)
+            }
+
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                onScrollListener?.onScrolled(this@SnapPickerView, dx, dy)
+            }
+        })
         addView(pickerRecycler)
     }
 
     /**
      * Sets a new adapter for this picker view.
      */
-    public fun setAdapter(adapter: SnapPickerAdapter<T>) {
-        adapter.orientation = getOrientation()
+    public fun setAdapter(adapter: Adapter<*>) {
+        getAdapter<Any>()?.detachFromPickerView()
         pickerRecycler.adapter = adapter
+        adapter.attachToPickerView(this)
     }
 
     /**
      * Returns the current adapter of this picker view.
+     * If there is no adapter, it returns `null`.
      */
     @Suppress("UNCHECKED_CAST")
-    public fun getAdapter(): SnapPickerAdapter<T> {
-        return pickerRecycler.adapter as SnapPickerAdapter<T>
+    public fun <T> getAdapter(): Adapter<T>? {
+        return pickerRecycler.adapter as Adapter<T>?
     }
 
     /**
-     * Sets layout orientation of this picker to given value.
-     *
-     * @param orientation Orientation value, either [RecyclerView.HORIZONTAL] or [RecyclerView.VERTICAL].
+     * Sets new values list to this picker.
+     * This is convenience method to set values into internal adapter.
      */
-    public fun setOrientation(orientation: Int) {
-        (pickerRecycler.layoutManager as LinearLayoutManager).orientation = orientation
-        getAdapter().orientation = orientation
+    public fun <T> setValues(values: List<T>) {
+        val adapter = getAdapter<T>()
+            ?: throw IllegalStateException("Adapter must be set before set values")
+        adapter.setValues(values)
     }
 
     /**
-     * Returns the current orientation of this picker.
+     * Gets a value at the specified position.
+     * This is convenience method to get value from internal adapter.
      *
-     * @return Current orientation value, either [RecyclerView.HORIZONTAL] or [RecyclerView.VERTICAL].
+     * @param position The position in this picker.
      */
-    public fun getOrientation(): Int {
-        return (pickerRecycler.layoutManager as LinearLayoutManager).orientation
+    public fun <T> getValue(position: Int): T {
+        return getAdapter<T>()?.getValue(position)
+            ?: throw IllegalStateException("Adapter must be set before get value")
+    }
+
+    /**
+     * Sets a scroll listener to receive scroll changing events.
+     */
+    public fun setOnScrollListener(onScrollListener: OnScrollListener?) {
+        this.onScrollListener = onScrollListener
     }
 
     public companion object {
-        internal const val ORIENTATION_HORIZONTAL: Int = RecyclerView.HORIZONTAL
-        internal const val ORIENTATION_VERTICAL: Int = RecyclerView.VERTICAL
+        public const val ORIENTATION_HORIZONTAL: Int = RecyclerView.HORIZONTAL
+        public const val ORIENTATION_VERTICAL: Int = RecyclerView.VERTICAL
 
         internal const val DEFAULT_ITEM_WIDTH_DP: Int = 48
         internal const val DEFAULT_ITEM_HEIGHT_DP: Int = 48
     }
 
     /**
-     * Default implementation of the [SnapPickerAdapter].
+     * Adapter class for binding data to view that is displayed in the picker.
      */
-    private class DefaultSnapPickerAdapter<T>(
+    public abstract class Adapter<T> : RecyclerView.Adapter<ItemFrameViewHolder>() {
+        /**
+         * The value list to display in this picker.
+         */
+        private var values: List<T> = emptyList()
+
+        /**
+         * Picker view reference to sync some options to this adapter.
+         */
+        private var pickerView: SnapPickerView? = null
+
+        private val orientation: Int
+            get() = requireNotNull(pickerView).orientation
+
+        private val isCyclic: Boolean
+            get() = requireNotNull(pickerView).isCyclic
+
+        internal fun attachToPickerView(pickerView: SnapPickerView) {
+            this.pickerView = pickerView
+        }
+
+        internal fun detachFromPickerView() {
+            if (pickerView != null) {
+                pickerView = null
+            }
+        }
+
+        /**
+         * Sets new values list to this picker.
+         */
+        public fun setValues(values: List<T>) {
+            this.values = values
+        }
+
+        /**
+         * Gets a value at the specified position.
+         *
+         * @param position The position in this picker.
+         */
+        public fun getValue(position: Int): T {
+            return if (isCyclic) {
+                values[position % values.size]
+            } else {
+                values[position]
+            }
+        }
+
+        public final override fun getItemCount(): Int = if (isCyclic) Int.MAX_VALUE else values.size
+
+        public final override fun getItemViewType(position: Int): Int = super.getItemViewType(position)
+
+        public final override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemFrameViewHolder {
+            val context = parent.context
+            val displayMetrics = parent.resources.displayMetrics
+            return ItemFrameViewHolder.create(
+                context = context,
+                maxItemWidth = if (orientation == ORIENTATION_VERTICAL) {
+                    ViewGroup.LayoutParams.MATCH_PARENT
+                } else {
+                    getMaxItemWidth(displayMetrics)
+                },
+                maxItemHeight = if (orientation == ORIENTATION_HORIZONTAL) {
+                    ViewGroup.LayoutParams.MATCH_PARENT
+                } else {
+                    getMaxItemHeight(displayMetrics)
+                },
+                itemView = createItemView(parent)
+            )
+        }
+
+        /**
+         * Returns the max size of this picker's each item width. Size value should be pixels.
+         * The default size is pixel size of 48DP in current display.
+         *
+         * If picker orientation is vertical, it will be ignored. And width is fixed to match parent.
+         *
+         * @param displayMetrics Display metrics instance of current display.
+         */
+        public open fun getMaxItemWidth(displayMetrics: DisplayMetrics): Int {
+            return TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                DEFAULT_ITEM_WIDTH_DP.toFloat(),
+                displayMetrics
+            ).roundToInt()
+        }
+
+        /**
+         * Returns the max size of this picker's each item height. Size value should be pixels.
+         * The default size is pixel size of 48DP in current display.
+         *
+         * If picker orientation is horizontal, it will be ignored. And height is fixed to match parent.
+         *
+         * @param displayMetrics Display metrics instance of current display.
+         */
+        public open fun getMaxItemHeight(displayMetrics: DisplayMetrics): Int {
+            return TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                DEFAULT_ITEM_HEIGHT_DP.toFloat(),
+                displayMetrics
+            ).roundToInt()
+        }
+
+        /**
+         * Creates a new item view associated with the specified position.
+         *
+         * Item view will be constrained in the max size, calculated by [getMaxItemWidth]
+         * and [getMaxItemHeight]. If you want to change max item view size, override
+         * [getMaxItemWidth] or [getMaxItemHeight].
+         */
+        public abstract fun createItemView(parent: ViewGroup): View
+
+        public final override fun onBindViewHolder(holder: ItemFrameViewHolder, position: Int) {
+            holder.bind(getValue(position), ::bindItemView)
+        }
+
+        /**
+         * Binds a item view associated with the specified value.
+         */
+        public abstract fun bindItemView(itemView: View, value: T)
+    }
+
+    /**
+     * Default implementation of the adapter.
+     */
+    private class DefaultAdapter(
         private val maxItemWidth: Int,
         private val maxItemHeight: Int
-    ) : SnapPickerAdapter<T>() {
+    ) : Adapter<Any>() {
         override fun getMaxItemWidth(displayMetrics: DisplayMetrics): Int = maxItemWidth
         override fun getMaxItemHeight(displayMetrics: DisplayMetrics): Int = maxItemHeight
 
@@ -135,9 +300,43 @@ public class SnapPickerView<T> : FrameLayout {
             return textView
         }
 
-        override fun bindItemView(itemView: View, value: T) {
+        override fun bindItemView(itemView: View, value: Any) {
             itemView as AppCompatTextView
             itemView.text = value.toString()
         }
+    }
+
+    /**
+     * Scroll listener to receive picker scrolling events.
+     */
+    public abstract class OnScrollListener {
+        /**
+         * Callback that invoked when the picker's scroll state changed.
+         *
+         * @param pickerView The scrolled [SnapPickerView].
+         * @param state The updated scroll state.
+         */
+        public open fun onScrollStateChanged(pickerView: SnapPickerView, state: Int) {}
+
+        /**
+         * Callback that invoked when the picker has been scrolled.
+         *
+         * @param pickerView The scrolled [SnapPickerView].
+         * @param dx Delta of horizontal scroll.
+         * @param dy Delta of vertical scroll.
+         */
+        public open fun onScrolled(pickerView: SnapPickerView, dx: Int, dy: Int) {}
+    }
+
+    /**
+     * A listener to receive picker's selected value changed event.
+     */
+    public fun interface OnValueChangedListener<T> {
+        /**
+         * Callback that invoked when the picker's current selected value has been changed.
+         *
+         * @param value The new selected value.
+         */
+        public fun onValueChanged(value: T)
     }
 }

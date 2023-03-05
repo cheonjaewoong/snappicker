@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.example.snappicker.databinding.FragmentBasicNumberPickerSampleBinding
+import io.woong.snappicker.widget.SnapPickerView
 
 public class BasicNumberPickerSample : Fragment() {
     override fun onCreateView(
@@ -15,7 +16,7 @@ public class BasicNumberPickerSample : Fragment() {
     ): View {
         val binding = FragmentBasicNumberPickerSampleBinding.inflate(inflater, container, false)
         binding.toolbar.setNavigationOnClickListener {}
-        binding.picker.getAdapter().setValues((1..99).toList())
+        binding.picker.setValues((1..99).toList())
         return binding.root
     }
 }
