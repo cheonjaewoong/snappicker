@@ -64,6 +64,7 @@ public class SnapPickerView : FrameLayout {
         @AttrRes defStyleAttr: Int,
         @StyleRes defStyleRes: Int
     ) : super(context, attrs, defStyleAttr, defStyleRes) {
+        // Obtains options from XML.
         val a = context.obtainStyledAttributes(attrs, R.styleable.SnapPickerView, defStyleAttr, defStyleRes)
         val orientation = a.getInt(R.styleable.SnapPickerView_android_orientation, ORIENTATION_VERTICAL)
         val itemWidth = a.getDimensionPixelSize(
@@ -82,8 +83,10 @@ public class SnapPickerView : FrameLayout {
                 resources.displayMetrics
             ).roundToInt()
         )
+        isCyclic = a.getBoolean(R.styleable.SnapPickerView_cyclic, true)
         a.recycle()
 
+        // Initializes internal recycler view.
         pickerRecycler = RecyclerView(context)
         pickerRecycler.layoutManager = LinearLayoutManager(context, orientation, false)
         setAdapter(DefaultAdapter(itemWidth, itemHeight))

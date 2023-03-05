@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <attr name="itemWidth" format="dimension" />
+    <attr name="itemHeight" format="dimension" />
+    <attr name="cyclic" format="boolean" />
+
     <declare-styleable name="SnapPickerView">
         <attr name="android:orientation" />
-        <attr name="itemWidth" format="dimension" />
-        <attr name="itemHeight" format="dimension" />
+        <attr name="itemWidth" />
+        <attr name="itemHeight" />
+        <attr name="cyclic" />
+    </declare-styleable>
+
     </declare-styleable>
 </resources>
