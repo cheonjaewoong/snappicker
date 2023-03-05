@@ -95,6 +95,7 @@ public class SnapPickerView<T> : FrameLayout {
      */
     public fun setOrientation(orientation: Int) {
         (pickerRecycler.layoutManager as LinearLayoutManager).orientation = orientation
+        getAdapter().orientation = orientation
     }
 
     /**
