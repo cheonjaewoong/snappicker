@@ -105,6 +105,26 @@ public class SnapPickerView : FrameLayout {
         addView(pickerRecycler)
     }
 
+    protected override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        val mainAxisViewSize: Int
+        val mainAxisItemSize: Int
+        if (orientation == ORIENTATION_HORIZONTAL) {
+            mainAxisViewSize = measuredWidth
+            mainAxisItemSize = getAdapter<Any>()?.getMaxItemWidth(resources.displayMetrics) ?: 0
+        } else {
+            mainAxisViewSize = measuredHeight
+            mainAxisItemSize = getAdapter<Any>()?.getMaxItemHeight(resources.displayMetrics) ?: 0
+        }
+        val recyclerPadding = (mainAxisViewSize / 2) - (mainAxisItemSize / 2)
+        if (orientation == ORIENTATION_HORIZONTAL) {
+            pickerRecycler.setPadding(recyclerPadding, 0, recyclerPadding, 0)
+        } else {
+            pickerRecycler.setPadding(0, recyclerPadding, 0, recyclerPadding)
+        }
+        pickerRecycler.clipToPadding = false
+        super.onLayout(changed, left, top, right, bottom)
+    }
+
     /**
      * Sets a new adapter for this picker view.
      */
