@@ -4,13 +4,11 @@ import android.content.Context
 import android.util.AttributeSet
 import android.util.DisplayMetrics
 import android.util.TypedValue
-import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.annotation.AttrRes
 import androidx.annotation.StyleRes
-import androidx.appcompat.widget.AppCompatTextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -91,7 +89,7 @@ public class SnapPickerView : FrameLayout {
         // Initialize view.
         pickerRecycler = RecyclerView(context)
         pickerRecycler.layoutManager = LinearLayoutManager(context, orientation, false)
-        setAdapter(DefaultAdapter(itemWidth, itemHeight))
+        setAdapter(DefaultSnapPickerAdapter(itemWidth, itemHeight))
         LinearSnapHelper().attachToRecyclerView(pickerRecycler)
         pickerRecycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
@@ -303,32 +301,6 @@ public class SnapPickerView : FrameLayout {
          * Binds a item view associated with the specified value.
          */
         public abstract fun bindItemView(itemView: View, value: T)
-    }
-
-    /**
-     * Default implementation of the adapter.
-     */
-    private class DefaultAdapter(
-        private val maxItemWidth: Int,
-        private val maxItemHeight: Int
-    ) : Adapter<Any>() {
-        override fun getMaxItemWidth(displayMetrics: DisplayMetrics): Int = maxItemWidth
-        override fun getMaxItemHeight(displayMetrics: DisplayMetrics): Int = maxItemHeight
-
-        override fun createItemView(parent: ViewGroup): View {
-            val textView = AppCompatTextView(parent.context)
-            textView.layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-            )
-            textView.gravity = Gravity.CENTER
-            return textView
-        }
-
-        override fun bindItemView(itemView: View, value: Any) {
-            itemView as AppCompatTextView
-            itemView.text = value.toString()
-        }
     }
 
     /**
