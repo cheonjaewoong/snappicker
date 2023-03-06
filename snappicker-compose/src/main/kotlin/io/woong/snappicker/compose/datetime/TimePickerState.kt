@@ -7,11 +7,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import io.woong.snappicker.compose.ExperimentalSnapPickerApi
+import io.woong.snappicker.ExperimentalSnapPickerApi
 import io.woong.snappicker.compose.SnapPickerState
 
 /**
- * Creates and remembers a [TimeSnapPickerState].
+ * Creates and remembers a [TimePickerState].
  *
  * @param initialPeriodIndex Initial selected AM/PM index.
  * @param initialHourIndex Initial selected hour index.
@@ -21,14 +21,14 @@ import io.woong.snappicker.compose.SnapPickerState
 @ExperimentalSnapPickerApi
 @Composable
 @Stable
-public fun rememberTimeSnapPickerState(
+public fun rememberTimePickerState(
     initialPeriodIndex: Int = 0,
     initialHourIndex: Int = 0,
     initialMinuteIndex: Int = 0,
     initialSecondIndex: Int = 0
-): TimeSnapPickerState {
-    return rememberSaveable(saver = TimeSnapPickerState.Saver) {
-        TimeSnapPickerState(
+): TimePickerState {
+    return rememberSaveable(saver = TimePickerState.Saver) {
+        TimePickerState(
             initialPeriodIndex = initialPeriodIndex,
             initialHourIndex = initialHourIndex,
             initialMinuteIndex = initialMinuteIndex,
@@ -47,7 +47,7 @@ public fun rememberTimeSnapPickerState(
  */
 @ExperimentalSnapPickerApi
 @Stable
-public class TimeSnapPickerState(
+public class TimePickerState(
     initialPeriodIndex: Int = 0,
     initialHourIndex: Int = 0,
     initialMinuteIndex: Int = 0,
@@ -113,9 +113,9 @@ public class TimeSnapPickerState(
 
     public companion object {
         /**
-         * The default saver for [TimeSnapPickerState].
+         * The default saver for [TimePickerState].
          */
-        public val Saver: Saver<TimeSnapPickerState, List<Int>> = Saver(
+        public val Saver: Saver<TimePickerState, List<Int>> = Saver(
             save = {
                 listOf(
                     it.periodPickerState.currentIndex,
@@ -125,7 +125,7 @@ public class TimeSnapPickerState(
                 )
             },
             restore = {
-                TimeSnapPickerState(
+                TimePickerState(
                     initialPeriodIndex = it[0],
                     initialHourIndex = it[1],
                     initialMinuteIndex = it[2],

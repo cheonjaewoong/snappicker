@@ -7,11 +7,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import io.woong.snappicker.compose.ExperimentalSnapPickerApi
+import io.woong.snappicker.ExperimentalSnapPickerApi
 import io.woong.snappicker.compose.SnapPickerState
 
 /**
- * Creates and remembers a [DateSnapPickerState].
+ * Creates and remembers a [DatePickerState].
  *
  * @param initialYearIndex Initial selected year index.
  * @param initialMonthIndex Initial selected month index.
@@ -20,13 +20,13 @@ import io.woong.snappicker.compose.SnapPickerState
 @ExperimentalSnapPickerApi
 @Composable
 @Stable
-public fun rememberDateSnapPickerState(
+public fun rememberDatePickerState(
     initialYearIndex: Int = 2022,
     initialMonthIndex: Int = 0,
     initialDateIndex: Int = 0
-): DateSnapPickerState {
-    return rememberSaveable(saver = DateSnapPickerState.Saver) {
-        DateSnapPickerState(
+): DatePickerState {
+    return rememberSaveable(saver = DatePickerState.Saver) {
+        DatePickerState(
             initialYearIndex = initialYearIndex,
             initialMonthIndex = initialMonthIndex,
             initialDateIndex = initialDateIndex
@@ -43,7 +43,7 @@ public fun rememberDateSnapPickerState(
  */
 @ExperimentalSnapPickerApi
 @Stable
-public class DateSnapPickerState(
+public class DatePickerState(
     initialYearIndex: Int = 2022,
     initialMonthIndex: Int = 0,
     initialDateIndex: Int = 0
@@ -105,9 +105,9 @@ public class DateSnapPickerState(
 
     public companion object {
         /**
-         * The default saver for [DateSnapPickerState].
+         * The default saver for [DatePickerState].
          */
-        public val Saver: Saver<DateSnapPickerState, List<Int>> = Saver(
+        public val Saver: Saver<DatePickerState, List<Int>> = Saver(
             save = {
                 listOf(
                     it.yearPickerState.currentIndex,
@@ -116,7 +116,7 @@ public class DateSnapPickerState(
                 )
             },
             restore = {
-                DateSnapPickerState(
+                DatePickerState(
                     initialYearIndex = it[0],
                     initialMonthIndex = it[1],
                     initialDateIndex = it[2]
