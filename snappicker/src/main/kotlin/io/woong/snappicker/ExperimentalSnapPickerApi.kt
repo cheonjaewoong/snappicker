@@ -1,4 +1,4 @@
-package io.woong.snappicker.compose
+package io.woong.snappicker
 
 /**
  * Marker for experimental feature.

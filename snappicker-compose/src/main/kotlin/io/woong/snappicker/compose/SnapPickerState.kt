@@ -12,6 +12,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import io.woong.snappicker.ExperimentalSnapPickerApi
 
 /**
  * Creates and remembers a [SnapPickerState].

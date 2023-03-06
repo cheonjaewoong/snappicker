@@ -14,12 +14,14 @@ import androidx.appcompat.widget.AppCompatTextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
+import io.woong.snappicker.ExperimentalSnapPickerApi
 import io.woong.snappicker.R
 import kotlin.math.roundToInt
 
 /**
  * The scrollable picker that allows user to select one item from multiple items.
  */
+@ExperimentalSnapPickerApi
 public class SnapPickerView : FrameLayout {
     /**
      * Internal recycler view to display values in a list.
@@ -64,7 +66,7 @@ public class SnapPickerView : FrameLayout {
         @AttrRes defStyleAttr: Int,
         @StyleRes defStyleRes: Int
     ) : super(context, attrs, defStyleAttr, defStyleRes) {
-        // Obtains options from XML.
+        // Obtain options from XML.
         val a = context.obtainStyledAttributes(attrs, R.styleable.SnapPickerView, defStyleAttr, defStyleRes)
         val orientation = a.getInt(R.styleable.SnapPickerView_android_orientation, ORIENTATION_VERTICAL)
         val itemWidth = a.getDimensionPixelSize(
@@ -86,7 +88,7 @@ public class SnapPickerView : FrameLayout {
         isCyclic = a.getBoolean(R.styleable.SnapPickerView_cyclic, true)
         a.recycle()
 
-        // Initializes internal recycler view.
+        // Initialize view.
         pickerRecycler = RecyclerView(context)
         pickerRecycler.layoutManager = LinearLayoutManager(context, orientation, false)
         setAdapter(DefaultAdapter(itemWidth, itemHeight))

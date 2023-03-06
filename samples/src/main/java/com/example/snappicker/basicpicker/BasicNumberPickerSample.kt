@@ -6,8 +6,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.example.snappicker.databinding.FragmentBasicNumberPickerSampleBinding
+import io.woong.snappicker.ExperimentalSnapPickerApi
 import io.woong.snappicker.widget.SnapPickerView
 
+@OptIn(ExperimentalSnapPickerApi::class)
 public class BasicNumberPickerSample : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
